@@ -2,17 +2,33 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { MdRemoveCircleOutline, MdAddCircleOutline, MdDelete } from 'react-icons/md';
 
-import { removeFromCart } from '../../store/modules/cart/actions'
+import { removeFromCart, updateUmount } from '../../store/modules/cart/actions'
 
 import { Container, ProductTable, Total } from './styles';
+
+import { formatPrice } from '../../util/format';
 
 function Cart() {
   const dispach = useDispatch();
 
-  const cart = useSelector(state => state.cart);
+  const cart = useSelector(state => state.cart.map(product =>({
+    ...product,
+    subtotal: formatPrice(product.price * product.amount)
+  })));
+  const total = useSelector(state => state.cart.reduce((total, product) => {
+    return total + product.price * product.amount;
+  }, 0));
 
   async function handleDeleteProduct(id) {
     dispach(removeFromCart(id))
+  }
+
+  async function handleUpdateAmount(product, type) {
+    let newAmount;
+    if (type === "more") newAmount = product.amount + 1;
+    else newAmount = product.amount - 1;
+
+    dispach(updateUmount(product.id, newAmount));
   }
 
   return(
@@ -40,17 +56,17 @@ function Cart() {
             </td>
             <td>
               <div>
-                <button type="button">
+                <button type="button" onClick={() => handleUpdateAmount(product, 'less')}>
                   <MdRemoveCircleOutline size={20}  color="#7159c1" />
                 </button>
                 <input type="number" readOnly value={product.amount}/>
-                <button type="button">
+                <button type="button" onClick={() => handleUpdateAmount(product, 'more')}>
                   <MdAddCircleOutline size={20}  color="#7159c1" />
                 </button>
               </div>
             </td>
             <td>
-              <strong>21348</strong>
+              <strong>{product.subtotal}</strong>
             </td>
             <td>
               <button type="button" onClick={() => handleDeleteProduct(product.id)}>
@@ -68,7 +84,7 @@ function Cart() {
 
         <Total>
           <span>TOTAL</span>
-          <strong>192,02</strong>
+          <strong>{formatPrice(total)}</strong>
         </Total>
       </footer>
     </Container>
