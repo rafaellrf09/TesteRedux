@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { MdAddShoppingCart } from 'react-icons/md';
 import api from '../../services/api';
 import { formatPrice } from '../../util/format';
-import { addToCart } from '../../store/modules/cart/actions';
+import { addToCartRequest } from '../../store/modules/cart/actions';
 
 import { ProductList } from './styles';
 
@@ -32,8 +32,8 @@ function Home() {
     setProducts(data);
   }
 
-  async function handleAddProduct(product) {
-    dispach(addToCart(product));
+  async function handleAddProduct(id) {
+    dispach(addToCartRequest(id));
   }
 
   return(
@@ -44,7 +44,7 @@ function Home() {
             <img src={product.image} alt={product.title} />
             <strong>{product.title}</strong>
             <span>{product.priceFormatted}</span>
-            <button type="button" onClick={() => handleAddProduct(product)}>
+            <button type="button" onClick={() => handleAddProduct(product.id)}>
               <div>
                 <MdAddShoppingCart size={36} color="#fff" /> {amount[product.id] || 0}
               </div>
